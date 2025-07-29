@@ -1,0 +1,69 @@
+/* @import './common.css'; Make sure this line is at the very top */
+
+.dog-pics-container {
+  background-color: #f6f0ff; /* Light purple background */
+  border: 1px solid #d3adf7; /* Purple border */
+}
+
+.dog-pics-data-area {
+  /* No need for min-height/max-height or overflow properties here if defined in common.css */
+  /* These properties are now inherited/controlled by the flex setup in common.css */
+  padding: 10px;
+  /* display: flex;  -- These are now effectively managed by the common.css flex-grow setup */
+  /* flex-wrap: wrap; */
+  /* justify-content: center; */
+  /* align-items: flex-start; */
+  gap: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+  gap: 15px;
+  width: 100%; /* Ensure grid takes full width of its parent */
+  padding: 5px; /* Add some padding inside the scrollable area */
+  box-sizing: border-box;
+}
+
+.image-item {
+  width: 150px; /* Fixed size for each image container */
+  height: 150px; /* Fixed size */
+  overflow: hidden; /* Hide overflowing parts of the image */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dog-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the container while maintaining aspect ratio */
+  display: block; /* Remove extra space below image */
+}
+
+/* Responsive adjustments for DogPics */
+@media (max-width: 600px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .image-item {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  .image-item {
+    width: 100px;
+    height: 100px;
+  }
+}

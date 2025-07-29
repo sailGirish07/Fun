@@ -1,0 +1,193 @@
+/* :root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
+
+
+/* src/styles/common.css */
+/* src/styles/common.css */
+.component-container {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 800px;
+  /* --- IMPORTANT CHANGES BELOW --- */
+  height: auto; /* Allow height to adjust if content is less than max-height */
+  min-height: 450px; /* Set a reasonable minimum height for the entire container */
+  max-height: 80vh; /* Allow the container to take up to 80% of viewport height */
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; /* Distribute space between items (heading, data-area, button) */
+  align-items: center;
+  text-align: center;
+  /* position: relative; Removed as flexbox handles layout */
+  box-sizing: border-box; /* Crucial for consistent sizing */
+}
+
+.component-heading {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 25px;
+  text-transform: capitalize;
+  font-weight: 600;
+  width: 100%;
+  flex-shrink: 0; /* Prevent heading from shrinking */
+}
+
+.data-display-area {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 25px; /* Add margin below the display area */
+  box-sizing: border-box;
+  min-height: 150px;
+  flex-grow: 1; /* Allows this div to take up available space */
+  overflow-y: auto; /* Keep vertical scroll on this specific div */
+  overflow-x: hidden; /* Ensure no horizontal scroll */
+  display: flex; /* Keep for DogPics grid */
+  flex-wrap: wrap; /* Keep for DogPics grid */
+  justify-content: center; /* Keep for DogPics grid */
+  align-items: flex-start; /* Keep for DogPics grid */
+}
+
+.fetch-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  margin-top: auto; /* Pushes button to the bottom, ensuring it stays visible */
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.fetch-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.fetch-button:active {
+  background-color: #004085;
+  transform: translateY(0);
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Responsive adjustments for common styles (already good, just including for completeness) */
+@media (max-width: 768px) {
+  .component-container {
+    padding: 20px;
+    margin: 20px auto;
+    min-height: 400px;
+    max-height: 90vh;
+  }
+  .component-heading {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  .data-display-area {
+    padding: 15px;
+    min-height: 120px;
+  }
+  .fetch-button {
+    padding: 10px 20px;
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .component-container {
+    padding: 15px;
+    margin: 15px auto;
+    min-height: 350px;
+    max-height: 95vh;
+  }
+  .component-heading {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+  }
+  .data-display-area {
+    padding: 10px;
+    min-height: 100px;
+  }
+  .fetch-button {
+    padding: 8px 15px;
+    font-size: 0.9em;
+  }
+}

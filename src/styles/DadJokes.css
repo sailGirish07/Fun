@@ -1,0 +1,55 @@
+/* @import './common.css'; Make sure this line is at the very top */
+
+.dad-jokes-container {
+  background-color: #fffbe6; /* Light yellow background */
+  border: 1px solid #ffe58f; /* Yellow border */
+}
+
+.dad-jokes-data-area {
+  min-height: 200px; /* Increased height to make scrolling more apparent */
+  max-height: 400px; /* Optional: Set a max-height */
+  overflow-y: auto; /* Make it scrollable vertically */
+  display: block; /* Change from flex to block for list layout */
+  text-align: left; /* Align text to left for list */
+  padding: 15px; /* Add padding for content inside scrollable area */
+  box-sizing: border-box; /* Include padding in height/width */
+}
+
+.joke-list {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+.joke-item {
+  background-color: #fffaf0; /* Lighter background for each joke */
+  border: 1px solid #ffedb3;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 10px; /* Space between jokes */
+  word-break: break-word; /* Ensure long words wrap */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.joke-item:last-child {
+  margin-bottom: 0; /* No margin after the last item */
+}
+
+.joke-text {
+  font-size: 1.1em;
+  color: #333;
+  line-height: 1.6;
+  font-style: italic;
+  margin: 0; /* Remove default paragraph margin */
+}
+
+/* Responsive adjustments for DadJokes */
+@media (max-width: 768px) {
+  .dad-jokes-data-area {
+    min-height: 150px;
+    max-height: 300px;
+  }
+  .joke-text {
+    font-size: 1em;
+  }
+}
