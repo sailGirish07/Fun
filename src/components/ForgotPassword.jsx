@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../styles/Auth.css'; // Importing the provided CSS for styling
+import '../styles/Auth.css';
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState('');
@@ -10,62 +10,49 @@ const ForgotPassword = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
-   const usernameRef = useRef();
-  
-    useEffect(() => {
-      usernameRef.current.focus(); // Autofocus on username field
-    }, []);
+  const usernameRef = useRef();
+
+  const usernameId = useId();
+  const newPasswordId = useId();
+  const confirmPasswordId = useId();
+
+  useEffect(() => {
+    usernameRef.current.focus();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage(''); // Clear any previous messages
-    setIsSuccess(false); // Reset success status
+    setMessage('');
+    setIsSuccess(false);
 
-    // Basic input validation
     if (username.trim() === '') {
       setMessage('Please enter your username.');
       return;
     }
-
     if (newPassword.trim() === '' || confirmNewPassword.trim() === '') {
       setMessage('Please enter and confirm your new password.');
       return;
     }
-
     if (newPassword !== confirmNewPassword) {
       setMessage('New password and confirm password do not match.');
-      // Clear password fields for security and re-entry
       setNewPassword('');
       setConfirmNewPassword('');
       return;
     }
 
-    // --- Simulated Password Reset Logic (Frontend Only) ---
-    // In a real application, you would send these details to a backend API
-    // which would securely handle the password update in a database.
     let users = JSON.parse(localStorage.getItem('users')) || [];
     const userIndex = users.findIndex(u => u.username === username);
 
     if (userIndex !== -1) {
-      // User found: Update their password in the local storage array
       users[userIndex].password = newPassword;
-      localStorage.setItem('users', JSON.stringify(users)); // Save the updated users array
-
+      localStorage.setItem('users', JSON.stringify(users));
       setMessage('Your password has been successfully reset. Redirecting to login...');
       setIsSuccess(true);
-      // Redirect to login page after a short delay
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000); // 2-second delay
+      setTimeout(() => navigate('/login'), 2000);
     } else {
-      // Username not found in our simulated database
-      // For security, it's often better to give a generic message
-      // to avoid revealing if a username exists or not.
       setMessage('Username not found. Please check your username.');
-      setIsSuccess(false);
     }
 
-    // Clear all input fields after submission attempt
     setUsername('');
     setNewPassword('');
     setConfirmNewPassword('');
@@ -77,10 +64,10 @@ const ForgotPassword = () => {
         <h2>Reset Password</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor={usernameId}>Username:</label>
             <input
               type="text"
-              id="username"
+              id={usernameId}
               ref={usernameRef}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -88,29 +75,27 @@ const ForgotPassword = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="newPassword">New Password:</label>
+            <label htmlFor={newPasswordId}>New Password:</label>
             <input
               type="password"
-              id="newPassword"
+              id={newPasswordId}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="confirmNewPassword">Confirm New Password:</label>
+            <label htmlFor={confirmPasswordId}>Confirm New Password:</label>
             <input
               type="password"
-              id="confirmNewPassword"
+              id={confirmPasswordId}
               value={confirmNewPassword}
               onChange={(e) => setConfirmNewPassword(e.target.value)}
               required
             />
           </div>
           {message && (
-            <p className={isSuccess ? "success-message" : "error-message"}>
-              {message}
-            </p>
+            <p className={isSuccess ? "success-message" : "error-message"}>{message}</p>
           )}
           <button type="submit" className="auth-button">Set New Password</button>
         </form>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Auth.css';
 
@@ -10,14 +10,19 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const usernameRef = useRef();
-  
-    useEffect(() => {
-      usernameRef.current.focus(); // Autofocus on username field
-    }, []);
+
+  // ✅ useId for accessibility-friendly, unique input IDs
+  const usernameId = useId();
+  const passwordId = useId();
+  const confirmPasswordId = useId();
+
+  useEffect(() => {
+    usernameRef.current.focus(); // Autofocus on username field
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
+    setError('');
 
     // --- Validation Rules ---
     if (username.trim() === '') {
@@ -51,8 +56,6 @@ const Signup = () => {
       setError("Passwords do not match.");
       return;
     }
-    // --- End Validation Rules ---
-
 
     const users = JSON.parse(localStorage.getItem('users')) || [];
     const userExists = users.some(u => u.username === username);
@@ -64,10 +67,7 @@ const Signup = () => {
 
     const newUser = { username, password };
     localStorage.setItem('users', JSON.stringify([...users, newUser]));
-    // Instead of alert, you might want a more integrated message or modal
-    // For now, we'll navigate directly after successful signup
-    // alert('Signup successful! Please log in.'); // Removed alert as per guidelines
-    navigate('/login'); // Navigate to login after successful signup
+    navigate('/login');
   };
 
   return (
@@ -76,10 +76,10 @@ const Signup = () => {
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor={usernameId}>Username:</label>
             <input
               type="text"
-              id="username"
+              id={usernameId}
               ref={usernameRef}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -87,20 +87,20 @@ const Signup = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password:</label>
+            <label htmlFor={passwordId}>Password:</label>
             <input
               type="password"
-              id="password"
+              id={passwordId}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <label htmlFor={confirmPasswordId}>Confirm Password:</label>
             <input
               type="password"
-              id="confirmPassword"
+              id={confirmPasswordId}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required

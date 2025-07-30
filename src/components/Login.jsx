@@ -72,22 +72,25 @@
 // };
 
 // export default Login;
-
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import '../styles/Auth.css'; // Assuming this CSS file exists for styling
+import '../styles/Auth.css';
+import Spinner from '../components/Spinner';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [isPending, setIsPending] = useState(false); // ✅
 
+  const navigate = useNavigate();
   const usernameRef = useRef();
 
+  const usernameId = useId();
+  const passwordId = useId();
+
   useEffect(() => {
-    usernameRef.current.focus(); // Autofocus on username field
+    usernameRef.current.focus();
   }, []);
 
   const handleSubmit = (e) => {
@@ -100,7 +103,12 @@ const Login = ({ onLogin }) => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
       onLogin();
-      navigate('/cat-fact');
+
+      setIsPending(true); // ✅ Start spinner
+
+      setTimeout(() => {
+        navigate('/cat-fact');
+      }, 2000); // Spinner duration
     } else {
       setError('Invalid username or password.');
       setUsername('');
@@ -114,10 +122,10 @@ const Login = ({ onLogin }) => {
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor={usernameId}>Username:</label>
             <input
               type="text"
-              id="username"
+              id={usernameId}
               ref={usernameRef}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -125,18 +133,23 @@ const Login = ({ onLogin }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password:</label>
+            <label htmlFor={passwordId}>Password:</label>
             <input
               type="password"
-              id="password"
+              id={passwordId}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="auth-button">Login</button>
+          <button type="submit" className="auth-button" disabled={isPending}>
+            {isPending ? 'Logging in...' : 'Login'}
+          </button>
         </form>
+
+        {isPending && <Spinner />} {/* ✅ Now it works */}
+
         <p className="auth-switch">
           Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
