@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect} from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Auth.css';
 
 const Signup = () => {
@@ -9,14 +9,50 @@ const Signup = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const usernameRef = useRef();
+  
+    useEffect(() => {
+      usernameRef.current.focus(); // Autofocus on username field
+    }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    setError(''); // Clear previous errors
+
+    // --- Validation Rules ---
+    if (username.trim() === '') {
+      setError("Username cannot be empty.");
+      return;
+    }
+    if (username.length > 10) {
+      setError("Username cannot exceed 6 characters.");
+      return;
+    }
+
+    if (password.trim() === '') {
+      setError("Password cannot be empty.");
+      return;
+    }
+    if (password.length > 8) {
+      setError("Password cannot exceed 8 characters.");
+      return;
+    }
+
+    if (confirmPassword.trim() === '') {
+      setError("Confirm Password cannot be empty.");
+      return;
+    }
+    if (confirmPassword.length > 8) {
+      setError("Confirm Password cannot exceed 8 characters.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+    // --- End Validation Rules ---
+
 
     const users = JSON.parse(localStorage.getItem('users')) || [];
     const userExists = users.some(u => u.username === username);
@@ -28,8 +64,10 @@ const Signup = () => {
 
     const newUser = { username, password };
     localStorage.setItem('users', JSON.stringify([...users, newUser]));
-    alert('Signup successful! Please log in.');
-    navigate('/login');
+    // Instead of alert, you might want a more integrated message or modal
+    // For now, we'll navigate directly after successful signup
+    // alert('Signup successful! Please log in.'); // Removed alert as per guidelines
+    navigate('/login'); // Navigate to login after successful signup
   };
 
   return (
@@ -42,6 +80,7 @@ const Signup = () => {
             <input
               type="text"
               id="username"
+              ref={usernameRef}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required

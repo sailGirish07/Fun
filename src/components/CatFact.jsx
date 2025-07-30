@@ -1,37 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/CatFact.css'; // Ensure this imports common.css at the top
+import '../styles/CatFact.css'; // Assume this also includes common styles
 
 const CatFact = () => {
   const [facts, setFacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Effect to load facts from localStorage on component mount
+  // ✅ Load all facts from global localStorage (not per-user)
+  // This useEffect runs once on component mount to load existing facts.
   useEffect(() => {
-    try {
-      const storedFacts = localStorage.getItem('catFacts');
-      if (storedFacts) {
-        setFacts(JSON.parse(storedFacts));
-      }
-    } catch (e) {
-      console.error("Failed to parse catFacts from localStorage", e);
-      // Clear potentially corrupt data if parsing fails
-      localStorage.removeItem('catFacts');
+  try {
+    const storedFacts = localStorage.getItem('catFacts');
+    const parsed = JSON.parse(storedFacts);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      setFacts(parsed);
     }
-  }, []); // Empty dependency array means this runs once on mount
+  } catch (e) {
+    console.error("Failed to parse catFacts from localStorage", e);
+  }
+}, []);
+ // Empty dependency array means it runs only once on mount
 
-  // Effect to save facts to localStorage whenever the facts state changes
+  // ✅ Save facts globally whenever changed
+  // This useEffect runs whenever the 'facts' state changes, saving it to localStorage.
   useEffect(() => {
     localStorage.setItem('catFacts', JSON.stringify(facts));
-  }, [facts]); // Runs whenever 'facts' state changes
+  }, [facts]); // Dependency array includes 'facts', so it runs on every 'facts' update
 
   const fetchCatFact = async () => {
     setLoading(true);
     setError('');
     try {
       const response = await axios.get('https://catfact.ninja/fact');
-      // Add new fact to the existing list with a unique ID
+      // Add new fact to the existing list, ensuring a unique ID
       setFacts(prevFacts => [...prevFacts, { id: Date.now(), text: response.data.fact }]);
     } catch (err) {
       setError('Failed to fetch cat fact. Please try again.');
@@ -41,8 +43,8 @@ const CatFact = () => {
     }
   };
 
-  // Function to delete a specific fact by its ID
   const deleteFact = (idToDelete) => {
+    // Filter out the fact to delete, creating a new array for immutability
     setFacts(prevFacts => prevFacts.filter(fact => fact.id !== idToDelete));
   };
 
@@ -55,14 +57,14 @@ const CatFact = () => {
         {facts.length > 0 ? (
           <ul className="fact-list">
             {facts.map((factItem) => (
-              <li key={factItem.id} className="fact-item"> {/* Use unique id for key */}
+              <li key={factItem.id} className="fact-item">
                 <p className="fact-text">{factItem.text}</p>
                 <button
                   onClick={() => deleteFact(factItem.id)}
                   className="delete-button"
                   title="Delete Fact"
                 >
-                  &times; {/* HTML entity for multiplication sign, often used for close/delete */}
+                  &times;
                 </button>
               </li>
             ))}

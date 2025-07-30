@@ -9,11 +9,17 @@ const DadJokes = () => {
 
   // Effect to load jokes from localStorage on component mount
   useEffect(() => {
+  try {
     const storedJokes = localStorage.getItem('dadJokes');
-    if (storedJokes) {
-      setJokes(JSON.parse(storedJokes));
+    const parsed = JSON.parse(storedJokes);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      setJokes(parsed);
     }
-  }, []);
+  } catch (e) {
+    console.error("Failed to parse dadJokes from localStorage", e);
+  }
+}, []);
+
 
   // Effect to save jokes to localStorage whenever the jokes state changes
   useEffect(() => {

@@ -8,12 +8,18 @@ const DogPics = () => {
   const [error, setError] = useState('');
 
   // Effect to load dog images from localStorage on component mount
-  useEffect(() => {
+ useEffect(() => {
+  try {
     const storedDogImages = localStorage.getItem('dogImages');
-    if (storedDogImages) {
-      setDogImages(JSON.parse(storedDogImages));
+    const parsed = JSON.parse(storedDogImages);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      setDogImages(parsed);
     }
-  }, []);
+  } catch (e) {
+    console.error("Failed to parse dogImages from localStorage", e);
+  }
+}, []);
+
 
   // Effect to save dog images to localStorage whenever the dogImages state changes
   useEffect(() => {
