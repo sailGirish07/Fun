@@ -6,7 +6,7 @@ const initialState = {
   username: '',
   newPassword: '',
   confirmNewPassword: '',
-  message: '',
+  message: '', 
   isSuccess: false,
 };
 
