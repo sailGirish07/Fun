@@ -1,13 +1,14 @@
-
-// import React, { useState, useEffect, useMemo, useLayoutEffect, useRef } from 'react';
+// import React, { useState, useEffect, useLayoutEffect, useRef, useDeferredValue } from 'react';
 // import axios from 'axios';
 // import '../styles/DadJokes.css';
 
 // const DadJokes = () => {
 //   const [jokes, setJokes] = useState([]);
+//   const deferredJokes = useDeferredValue(jokes); // 👈 defer the jokes only during fetch
+
 //   const [loading, setLoading] = useState(false);
 //   const [error, setError] = useState('');
-//   const containerRef = useRef(); // ✅ added ref
+//   const containerRef = useRef();
 
 //   useEffect(() => {
 //     try {
@@ -25,7 +26,6 @@
 //     localStorage.setItem('dadJokes', JSON.stringify(jokes));
 //   }, [jokes]);
 
-//   // ✅ Scroll to bottom after joke is added
 //   useLayoutEffect(() => {
 //     if (containerRef.current) {
 //       containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -48,48 +48,24 @@
 //     }
 //   };
 
-//   const totalJokes = useMemo(() => jokes.length, [jokes]);
-
-//   const minLengthJoke = useMemo(() => {
-//     if (jokes.length === 0) return null;
-//     return jokes.reduce((min, curr) =>
-//       curr.length < min.length ? curr : min
-//     );
-//   }, [jokes]);
-
-//   const maxLengthJoke = useMemo(() => {
-//     if (jokes.length === 0) return null;
-//     return jokes.reduce((max, curr) =>
-//       curr.length > max.length ? curr : max
-//     );
-//   }, [jokes]);
-
 //   return (
 //     <div className="component-container dad-jokes-container">
 //       <h1 className="component-heading">Random Dad Joke</h1>
-
-//       {totalJokes > 0 && (
-//         <>
-//           <p className="joke-count">Total Jokes Fetched: {totalJokes}</p>
-//           <p className="joke-count">Shortest Joke: {minLengthJoke}</p>
-//           <p className="joke-count">Longest Joke: {maxLengthJoke}</p>
-//         </>
-//       )}
 
 //       <div ref={containerRef} className="data-display-area dad-jokes-data-area scrollable-list">
 //         {loading && <p>Loading joke...</p>}
 //         {error && <p className="error-message">{error}</p>}
 
-//         {jokes.length > 0 ? (
+//         {deferredJokes.length > 0 ? (
 //           <ul className="joke-list">
-//             {jokes.map((jokeItem, index) => (
+//             {deferredJokes.map((jokeItem, index) => (
 //               <li key={index} className="joke-item">
 //                 <p className="joke-text">{jokeItem}</p>
 //               </li>
 //             ))}
 //           </ul>
 //         ) : (
-//           !loading && !error && <p>Click the button to fetch dad jokes!</p>
+//           !loading && !error && <p>No jokes found.</p>
 //         )}
 //       </div>
 
@@ -102,13 +78,26 @@
 
 // export default DadJokes;
 
-import React, { useState, useEffect, useMemo, useLayoutEffect, useRef, useDeferredValue } from 'react';
+
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useDeferredValue,
+  useOptimistic,
+} from 'react';
 import axios from 'axios';
 import '../styles/DadJokes.css';
 
 const DadJokes = () => {
   const [jokes, setJokes] = useState([]);
-  const deferredJokes = useDeferredValue(jokes); // 👈 defer the jokes only during fetch
+  const [optimisticJokes, addOptimisticJoke] = useOptimistic(
+    jokes,
+    (prev, newJoke) => [...prev, newJoke]
+  );
+
+  const deferredJokes = useDeferredValue(optimisticJokes);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -139,14 +128,26 @@ const DadJokes = () => {
   const fetchDadJoke = async () => {
     setLoading(true);
     setError('');
+
+    // Optimistically show fake joke
+    const placeholder = 'Fetching a dad joke… brace yourself! 😆';
+    addOptimisticJoke(placeholder);
+
     try {
       const response = await axios.get('https://icanhazdadjoke.com/', {
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Accept': 'application/json' },
       });
-      setJokes(prevJokes => [...prevJokes, response.data.joke]);
+
+      // Replace placeholder with actual joke
+      setJokes(prev =>
+        prev.map(joke => (joke === placeholder ? response.data.joke : joke))
+      );
     } catch (err) {
       setError('Failed to fetch dad joke. Please try again.');
       console.error('Error fetching dad joke:', err);
+
+      // Remove placeholder if API fails
+      setJokes(prev => prev.filter(joke => joke !== placeholder));
     } finally {
       setLoading(false);
     }
@@ -156,7 +157,10 @@ const DadJokes = () => {
     <div className="component-container dad-jokes-container">
       <h1 className="component-heading">Random Dad Joke</h1>
 
-      <div ref={containerRef} className="data-display-area dad-jokes-data-area scrollable-list">
+      <div
+        ref={containerRef}
+        className="data-display-area dad-jokes-data-area scrollable-list"
+      >
         {loading && <p>Loading joke...</p>}
         {error && <p className="error-message">{error}</p>}
 
@@ -181,3 +185,4 @@ const DadJokes = () => {
 };
 
 export default DadJokes;
+
