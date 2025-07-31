@@ -1,184 +1,105 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import '../styles/CatFact.css'; // Assume this also includes common styles
 
-// const CatFact = () => {
-//   const [facts, setFacts] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState('');
+  import React, { useState, useEffect, useMemo, useLayoutEffect, useRef} from 'react';
+  import axios from 'axios';
+  import '../styles/CatFact.css';
 
-//   // ✅ Load all facts from global localStorage (not per-user)
-//   // This useEffect runs once on component mount to load existing facts.
-//   useEffect(() => {
-//   try {
-//     const storedFacts = localStorage.getItem('catFacts');
-//     const parsed = JSON.parse(storedFacts);
-//     if (Array.isArray(parsed) && parsed.length > 0) {
-//       setFacts(parsed);
-//     }
-//   } catch (e) {
-//     console.error("Failed to parse catFacts from localStorage", e);
-//   }
-// }, []);
-//  // Empty dependency array means it runs only once on mount
+  const CatFact = () => {
+    const [facts, setFacts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const containerRef = useRef();
 
-//   // ✅ Save facts globally whenever changed
-//   // This useEffect runs whenever the 'facts' state changes, saving it to localStorage.
-//   useEffect(() => {
-//     localStorage.setItem('catFacts', JSON.stringify(facts));
-//   }, [facts]); // Dependency array includes 'facts', so it runs on every 'facts' update
-
-//   const fetchCatFact = async () => {
-//     setLoading(true);
-//     setError('');
-//     try {
-//       const response = await axios.get('https://catfact.ninja/fact');
-//       // Add new fact to the existing list, ensuring a unique ID
-//       setFacts(prevFacts => [...prevFacts, { id: Date.now(), text: response.data.fact }]);
-//     } catch (err) {
-//       setError('Failed to fetch cat fact. Please try again.');
-//       console.error('Error fetching cat fact:', err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const deleteFact = (idToDelete) => {
-//     // Filter out the fact to delete, creating a new array for immutability
-//     setFacts(prevFacts => prevFacts.filter(fact => fact.id !== idToDelete));
-//   };
-
-//   return (
-//     <div className="component-container cat-fact-container">
-//       <h1 className="component-heading">Random Cat Fact</h1>
-//       <div className="data-display-area cat-fact-data-area scrollable-list">
-//         {loading && <p>Loading fact...</p>}
-//         {error && <p className="error-message">{error}</p>}
-//         {facts.length > 0 ? (
-//           <ul className="fact-list">
-//             {facts.map((factItem) => (
-//               <li key={factItem.id} className="fact-item">
-//                 <p className="fact-text">{factItem.text}</p>
-//                 <button
-//                   onClick={() => deleteFact(factItem.id)}
-//                   className="delete-button"
-//                   title="Delete Fact"
-//                 >
-//                   &times;
-//                 </button>
-//               </li>
-//             ))}
-//           </ul>
-//         ) : (
-//           !loading && !error && <p>Click the button to fetch cat facts!</p>
-//         )}
-//       </div>
-//       <button onClick={fetchCatFact} className="fetch-button">
-//         {loading ? 'Fetching...' : 'Get New Cat Fact'}
-//       </button>
-//     </div>
-//   );
-// };
-
-// export default CatFact;
-
-
-import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
-import '../styles/CatFact.css'; // Assume this also includes common styles
-
-const CatFact = () => {
-  const [facts, setFacts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    try {
-      const storedFacts = localStorage.getItem('catFacts');
-      const parsed = JSON.parse(storedFacts);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setFacts(parsed);
+    useEffect(() => {
+      try {
+        const storedFacts = localStorage.getItem('catFacts');
+        const parsed = JSON.parse(storedFacts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFacts(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to parse catFacts from localStorage", e);
       }
-    } catch (e) {
-      console.error("Failed to parse catFacts from localStorage", e);
-    }
-  }, []);
+    }, []);
 
-  useEffect(() => {
-    localStorage.setItem('catFacts', JSON.stringify(facts));
-  }, [facts]);
+    useEffect(() => {
+      localStorage.setItem('catFacts', JSON.stringify(facts));
+    }, [facts]);
 
-  const fetchCatFact = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await axios.get('https://catfact.ninja/fact');
-      setFacts(prevFacts => [...prevFacts, { id: Date.now(), text: response.data.fact }]);
-    } catch (err) {
-      setError('Failed to fetch cat fact. Please try again.');
-      console.error('Error fetching cat fact:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    useLayoutEffect(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
+    }, [facts]);
 
-  const deleteFact = (idToDelete) => {
-    setFacts(prevFacts => prevFacts.filter(fact => fact.id !== idToDelete));
-  };
+    const fetchCatFact = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await axios.get('https://catfact.ninja/fact');
+        setFacts(prevFacts => [...prevFacts, { id: Date.now(), text: response.data.fact }]);
+      } catch (err) {
+        setError('Failed to fetch cat fact. Please try again.');
+        console.error('Error fetching cat fact:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // ✅ useMemo for long facts only
-  const longFacts = useMemo(() => {
-    return facts.filter(f => f.text.length > 100);
-  }, [facts]);
+    const deleteFact = (idToDelete) => {
+      setFacts(prevFacts => prevFacts.filter(fact => fact.id !== idToDelete));
+    };
 
-  return (
-    <div className="component-container cat-fact-container">
-      <h1 className="component-heading">Random Cat Fact</h1>
+    const longFacts = useMemo(() => {
+      return facts.filter(f => f.text.length > 100);
+    }, [facts]);
 
-      <div className="data-display-area cat-fact-data-area scrollable-list">
-        {loading && <p>Loading fact...</p>}
-        {error && <p className="error-message">{error}</p>}
-        {facts.length > 0 ? (
-          <>
-            <ul className="fact-list">
-              {facts.map((factItem) => (
-                <li key={factItem.id} className="fact-item">
-                  <p className="fact-text">{factItem.text}</p>
-                  <button
-                    onClick={() => deleteFact(factItem.id)}
-                    className="delete-button"
-                    title="Delete Fact"
-                  >
-                    &times;
-                  </button>
-                </li>
-              ))}
-            </ul>
+    return (
+      <div className="component-container cat-fact-container">
+        <h1 className="component-heading">Random Cat Fact</h1>
 
-            {/* ✅ Display only long facts if any */}
-            {longFacts.length > 0 && (
-              <div className="long-facts-section">
-                <h3>Long Cat Facts (100+ chars)</h3>
-                <ul className="fact-list">
-                  {longFacts.map(fact => (
-                    <li key={fact.id} className="fact-item">
-                      <p className="fact-text">{fact.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        ) : (
-          !loading && !error && <p>Click the button to fetch cat facts!</p>
-        )}
+        <div ref={containerRef} className="data-display-area cat-fact-data-area scrollable-list">
+          {loading && <p>Loading fact...</p>}
+          {error && <p className="error-message">{error}</p>}
+          {facts.length > 0 ? (
+            <>
+              <ul className="fact-list">
+                {facts.map((factItem) => (
+                  <li key={factItem.id} className="fact-item">
+                    <p className="fact-text">{factItem.text}</p>
+                    <button
+                      onClick={() => deleteFact(factItem.id)}
+                      className="delete-button"
+                      title="Delete Fact"
+                    >
+                      &times;
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {longFacts.length > 0 && (
+                <div className="long-facts-section">
+                  <h3>Long Cat Facts (100+ chars)</h3>
+                  <ul className="fact-list">
+                    {longFacts.map(fact => (
+                      <li key={fact.id} className="fact-item">
+                        <p className="fact-text">{fact.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            !loading && !error && <p>Click the button to fetch cat facts!</p>
+          )}
+        </div>
+
+        <button onClick={fetchCatFact} className="fetch-button">
+          {loading ? 'Fetching...' : 'Get New Cat Fact'}
+        </button>
       </div>
+    );
+  };
 
-      <button onClick={fetchCatFact} className="fetch-button">
-        {loading ? 'Fetching...' : 'Get New Cat Fact'}
-      </button>
-    </div>
-  );
-};
-
-export default CatFact;
+  export default CatFact;

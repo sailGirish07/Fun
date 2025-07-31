@@ -1,15 +1,31 @@
-import React, { useState, useEffect, useRef, useId } from 'react';
+import React, { useEffect, useRef, useId, useReducer } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
 
-const ForgotPassword = () => {
-  const [username, setUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
-  const navigate = useNavigate();
+const initialState = {
+  username: '',
+  newPassword: '',
+  confirmNewPassword: '',
+  message: '',
+  isSuccess: false,
+};
 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'SET_MESSAGE':
+      return { ...state, message: action.message, isSuccess: action.isSuccess || false };
+    case 'RESET_FORM':
+      return { ...state, username: '', newPassword: '', confirmNewPassword: '' };
+    default:
+      return state;
+  }
+}
+
+const ForgotPassword = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const navigate = useNavigate();
   const usernameRef = useRef();
 
   const usernameId = useId();
@@ -22,21 +38,22 @@ const ForgotPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage('');
-    setIsSuccess(false);
+    dispatch({ type: 'SET_MESSAGE', message: '', isSuccess: false });
+
+    const { username, newPassword, confirmNewPassword } = state;
 
     if (username.trim() === '') {
-      setMessage('Please enter your username.');
+      dispatch({ type: 'SET_MESSAGE', message: 'Please enter your username.' });
       return;
     }
     if (newPassword.trim() === '' || confirmNewPassword.trim() === '') {
-      setMessage('Please enter and confirm your new password.');
+      dispatch({ type: 'SET_MESSAGE', message: 'Please enter and confirm your new password.' });
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      setMessage('New password and confirm password do not match.');
-      setNewPassword('');
-      setConfirmNewPassword('');
+      dispatch({ type: 'SET_MESSAGE', message: 'New password and confirm password do not match.' });
+      dispatch({ type: 'SET_FIELD', field: 'newPassword', value: '' });
+      dispatch({ type: 'SET_FIELD', field: 'confirmNewPassword', value: '' });
       return;
     }
 
@@ -46,16 +63,17 @@ const ForgotPassword = () => {
     if (userIndex !== -1) {
       users[userIndex].password = newPassword;
       localStorage.setItem('users', JSON.stringify(users));
-      setMessage('Your password has been successfully reset. Redirecting to login...');
-      setIsSuccess(true);
+      dispatch({
+        type: 'SET_MESSAGE',
+        message: 'Your password has been successfully reset. Redirecting to login...',
+        isSuccess: true
+      });
       setTimeout(() => navigate('/login'), 2000);
     } else {
-      setMessage('Username not found. Please check your username.');
+      dispatch({ type: 'SET_MESSAGE', message: 'Username not found. Please check your username.' });
     }
 
-    setUsername('');
-    setNewPassword('');
-    setConfirmNewPassword('');
+    dispatch({ type: 'RESET_FORM' });
   };
 
   return (
@@ -69,8 +87,8 @@ const ForgotPassword = () => {
               type="text"
               id={usernameId}
               ref={usernameRef}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={state.username}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'username', value: e.target.value })}
               required
             />
           </div>
@@ -79,8 +97,8 @@ const ForgotPassword = () => {
             <input
               type="password"
               id={newPasswordId}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              value={state.newPassword}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'newPassword', value: e.target.value })}
               required
             />
           </div>
@@ -89,13 +107,13 @@ const ForgotPassword = () => {
             <input
               type="password"
               id={confirmPasswordId}
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              value={state.confirmNewPassword}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'confirmNewPassword', value: e.target.value })}
               required
             />
           </div>
-          {message && (
-            <p className={isSuccess ? "success-message" : "error-message"}>{message}</p>
+          {state.message && (
+            <p className={state.isSuccess ? "success-message" : "error-message"}>{state.message}</p>
           )}
           <button type="submit" className="auth-button">Set New Password</button>
         </form>
