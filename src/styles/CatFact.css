@@ -1,51 +1,81 @@
-/* @import './common.css'; Make sure this line is at the very top */
-
 .cat-fact-container {
-  background-color: #e6f7ff; /* Light blue background */
-  border: 1px solid #91d5ff; /* Blue border */
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
 }
 
 .cat-fact-data-area {
-  min-height: 200px; /* Increased height to make scrolling more apparent */
-  max-height: 400px; /* Optional: Set a max-height */
-  overflow-y: auto; /* Make it scrollable vertically */
-  overflow-x: hidden; /* Hide horizontal scroll */
-  display: block; /* Change from flex to block for list layout */
-  text-align: left; /* Align text to left for list */
-  padding: 15px; /* Add padding for content inside scrollable area */
-  box-sizing: border-box; /* Include padding in height/width */
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+  text-align: left;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 .fact-list {
-  list-style: none; /* Remove bullet points */
+  list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .fact-item {
-  background-color: #f0f8ff; /* Lighter background for each fact */
+  background-color: #f0f8ff;
   border: 1px solid #cce7ff;
   border-radius: 8px;
   padding: 10px 15px;
-  margin-bottom: 10px; /* Space between facts */
-  word-break: break-word; /* Ensure long words wrap */
+  margin-bottom: 10px;
+  word-break: break-word;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  display: flex; /* Use flexbox for text and delete button alignment */
-  justify-content: space-between; /* Puts space between text and button */
-  align-items: center; /* Vertically aligns text and button */
+  display: inline-block;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
 }
 
-.fact-item:last-child {
-  margin-bottom: 0; /* No margin after the last item */
+.fact-item:hover {
+  background-color: #d6ecff;
+}
+
+.fact-item.selected {
+  background-color: #bae7ff;
+  border-color: #69c0ff;
 }
 
 .fact-text {
+  display: inline; /* 👈 make inline */
   font-size: 1.1em;
   color: #333;
   line-height: 1.6;
-  margin: 0; /* Remove default paragraph margin */
-  flex-grow: 1; /* Allows text to take up remaining space */
-  padding-right: 10px; /* Space between text and button */
+  margin: 0;
+  padding: 0;
+  word-break: break-word;
+}
+
+.delete-button {
+  display: inline; /* 👈 inline so it appears immediately after text */
+  background-color: transparent;
+  border: none;
+  color: #ff4d4f;
+  font-size: 1.2em;
+  cursor: pointer;
+  /* margin-left: 5px; */
+  padding: 0;
+  vertical-align: middle;
+  margin-right: 20px;
+}
+
+.delete-button:hover {
+  color: #cf1322;
+}
+
+.fact-section-heading {
+  font-size: 1.2em;
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 /* Responsive adjustments for CatFact */
@@ -54,7 +84,12 @@
     min-height: 150px;
     max-height: 300px;
   }
+
   .fact-text {
     font-size: 1em;
+  }
+
+  .delete-button {
+    font-size: 1.3em;
   }
 }

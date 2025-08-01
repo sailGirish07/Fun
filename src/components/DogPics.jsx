@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import '../styles/DogPics.css';
@@ -7,8 +6,9 @@ const DogPics = () => {
   const [dogImages, setDogImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null); // ✅ New state
 
-  // ✅ Load dog images from localStorage on mount
+  // ✅ Load from localStorage
   useEffect(() => {
     try {
       const storedDogImages = localStorage.getItem('dogImages');
@@ -21,12 +21,12 @@ const DogPics = () => {
     }
   }, []);
 
-  // ✅ Save dog images to localStorage on change
+  // ✅ Save to localStorage
   useEffect(() => {
     localStorage.setItem('dogImages', JSON.stringify(dogImages));
   }, [dogImages]);
 
-  // ✅ useCallback for stable fetch function reference
+  // ✅ Fetch random dog pic
   const fetchDogPic = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -39,26 +39,55 @@ const DogPics = () => {
     } finally {
       setLoading(false);
     }
-  }, []); // ✅ No external dependency needed for now
+  }, []);
 
-  // ✅ useMemo to filter only .jpg, .jpeg, .png images
+  // ✅ Only .jpg/.jpeg/.png
   const validDogImages = useMemo(() => {
     return dogImages.filter(url =>
       url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.png')
     );
   }, [dogImages]);
 
+  // ✅ Delete function by image URL
+  const deleteImage = (urlToDelete) => {
+    setDogImages(prev => prev.filter(url => url !== urlToDelete));
+    setSelectedImage(null); // Deselect after deletion
+  };
+
   return (
     <div className="component-container dog-pics-container">
       <h1 className="component-heading">Random Dog Pics</h1>
+
       <div className="data-display-area dog-pics-data-area scrollable-div">
         {loading && <p>Loading image...</p>}
         {error && <p className="error-message">{error}</p>}
 
         <div className="image-grid">
           {validDogImages.map((imageUrl, index) => (
-            <div key={index} className="image-item">
-              <img src={imageUrl} alt={`Random Dog ${index}`} className="dog-image" />
+            <div
+              key={index}
+              className={`image-item ${selectedImage === imageUrl ? 'selected' : ''}`}
+              onClick={() =>
+                setSelectedImage(prev => (prev === imageUrl ? null : imageUrl))
+              }
+            >
+              <img
+                src={imageUrl}
+                alt={`Random Dog ${index}`}
+                className="dog-image"
+              />
+              {selectedImage === imageUrl && (
+                 <button
+  className="delete-button"
+  onClick={(e) => {
+    e.stopPropagation();
+    deleteImage(imageUrl);
+  }}
+  title="Delete Image"
+>
+  <i className="fas fa-trash"></i>
+</button>
+              )}
             </div>
           ))}
         </div>
@@ -71,6 +100,8 @@ const DogPics = () => {
       <button onClick={fetchDogPic} className="fetch-button">
         {loading ? 'Fetching...' : 'Get New Dog Pic'}
       </button>
+     
+
     </div>
   );
 };
